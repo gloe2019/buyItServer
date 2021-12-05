@@ -19,16 +19,18 @@ const getOrders = async (req: Request, res: Response) => {
 const checkout = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    const { source } = req.body;
+    console.log(req.params, req.body);
+    const { token } = req.body;
     let shoppingCart = await shoppingCartModel.findOne({ userId });
     let user = await userModel.findOne({ _id: userId });
     let email = "";
     user ? (email = user.email) : (email = "");
+    console.log(shoppingCart);
     if (shoppingCart) {
       const charge = await stripe.charges.create({
-        amount: shoppingCart.total,
+        amount: Math.round(shoppingCart.total * 100),
         currency: "usd",
-        source: source,
+        source: token,
         receipt_email: email,
       });
       if (charge) {
